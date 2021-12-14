@@ -32,7 +32,7 @@ class GeneralizedDataset:
         """
         
         if os.path.exists(checked_id_file):
-            info = [line.strip().split(", ") for line in open(checked_id_file)]
+            info = [line.strip().split(" , ") for line in open(checked_id_file)]
             self.ids, self.aspect_ratios = zip(*info)
             return
         
@@ -46,9 +46,11 @@ class GeneralizedDataset:
         outs = []
         for future in as_completed(tasks):
             outs.extend(future.result())
+            
         if not hasattr(self, "id_compare_fn"):
             self.id_compare_fn = lambda x: int(x)
         outs.sort(key=lambda x: self.id_compare_fn(x[0]))
+        
         
         with open(checked_id_file, "w") as f:
             for img_id, aspect_ratio in outs:

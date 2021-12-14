@@ -17,17 +17,17 @@ def main(args):
         
     # ---------------------- prepare data loader ------------------------------- #
     
-    dataset_train = pmr.datasets(args.dataset, args.data_dir, "train2017", train=True)
+    dataset_train = pmr.datasets(args.dataset, args.data_dir, "2014_train=mask", train=True)
     indices = torch.randperm(len(dataset_train)).tolist()
     d_train = torch.utils.data.Subset(dataset_train, indices)
     
-    d_test = pmr.datasets(args.dataset, args.data_dir, "val2017", train=True) # set train=True for eval
+    d_test = pmr.datasets(args.dataset, args.data_dir, "2014_val=mask", train=True) # set train=True for eval
         
     args.warmup_iters = max(1000, len(d_train))
     
     # -------------------------------------------------------------------------- #
 
-    print(args)
+    
     num_classes = max(d_train.dataset.classes) + 1 # including background class
     model = pmr.maskrcnn_resnet50(True, num_classes).to(device)
     
@@ -97,17 +97,18 @@ if __name__ == "__main__":
     parser.add_argument("--use-cuda", action="store_true")
     
     parser.add_argument("--dataset", default="coco", help="coco or voc")
-    parser.add_argument("--data-dir", default="E:/PyTorch/data/coco2017")
+    # parser.add_argument("--data-dir", default="E:/PyToyrch/data/coco2017")
+    parser.add_argument("--data-dir", default="/home/seonghwan/PyTorch-Simple-MaskRCNN/heroes_data/train_dataset")
     parser.add_argument("--ckpt-path")
     parser.add_argument("--results")
     
     parser.add_argument("--seed", type=int, default=3)
     parser.add_argument('--lr-steps', nargs="+", type=int, default=[6, 7])
-    parser.add_argument("--lr", type=float)
-    parser.add_argument("--momentum", type=float, default=0.9)
-    parser.add_argument("--weight-decay", type=float, default=0.0001)
+    parser.add_argument("--lr", type=float , default=0.005)
+    parser.add_argument("--momentum", type=float, default=0.8) #default=0.9
+    parser.add_argument("--weight-decay", type=float, default=0.0001)#default=0.0001
     
-    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--iters", type=int, default=10, help="max iters per epoch, -1 denotes auto")
     parser.add_argument("--print-freq", type=int, default=100, help="frequency of printing losses")
     args = parser.parse_args()
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     if args.ckpt_path is None:
         args.ckpt_path = "./maskrcnn_{}.pth".format(args.dataset)
     if args.results is None:
-        args.results = os.path.join(os.path.dirname(args.ckpt_path), "maskrcnn_results.pth")
+        args.results = os.path.join(os.path.dirname(args.ckpt_path), "heroes_maskrcnn_results.pth")
     
     main(args)
     

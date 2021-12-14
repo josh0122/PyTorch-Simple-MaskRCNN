@@ -14,14 +14,14 @@ class COCODataset(GeneralizedDataset):
         self.split = split
         self.train = train
         
-        ann_file = os.path.join(data_dir, "annotations/instances_{}.json".format(split))
+        ann_file = os.path.join(data_dir, "new_ai_{}.json".format(split))
         self.coco = COCO(ann_file)
         self.ids = [str(k) for k in self.coco.imgs]
         
         # classes's values must start from 1, because 0 means background in the model
         self.classes = {k: v["name"] for k, v in self.coco.cats.items()}
         
-        checked_id_file = os.path.join(data_dir, "checked_{}.txt".format(split))
+        checked_id_file = os.path.join(data_dir, "new_checked_{}.txt".format(split))
         if train:
             if not os.path.exists(checked_id_file):
                 self._aspect_ratios = [v["width"] / v["height"] for v in self.coco.imgs.values()]
@@ -39,6 +39,7 @@ class COCODataset(GeneralizedDataset):
         return torch.stack((x, y, x + w, y + h), dim=1) # new_box format: (xmin, ymin, xmax, ymax)
         
     def get_target(self, img_id):
+        
         img_id = int(img_id)
         ann_ids = self.coco.getAnnIds(img_id)
         anns = self.coco.loadAnns(ann_ids)
@@ -60,6 +61,7 @@ class COCODataset(GeneralizedDataset):
             masks = torch.stack(masks)
 
         target = dict(image_id=torch.tensor([img_id]), boxes=boxes, labels=labels, masks=masks)
+        # target = dict(image_id=[img_id], boxes=boxes, labels=labels, masks=masks)
         return target
     
     
